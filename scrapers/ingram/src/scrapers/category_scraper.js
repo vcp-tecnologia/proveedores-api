@@ -99,7 +99,7 @@ function scrapeCategoryUrls(options) {
 
   for (i = 0; i < categoryHeaders.length; ++i) {
     var categoryHeader = categoryHeaders[i];
-    var categoryName = categoryNameRegex.exec((categoryHeader.innerText.trim()))[1]
+    var categoryName = categoryNameRegex.exec((categoryHeader.innerText.trim()))[1].trim();
     var categoryUrl = options.baseUrl + categoryHeader.children[0].getAttribute('href');
     categories.push({
       categoryName, 
@@ -135,7 +135,7 @@ function scrapeAllCategories(phantom, page) {
         exit(phantom, SUCCESS_EXIT_CODE);
       }
       var { categoryName, categoryUrl } = categories[i];
-      info(`Starting scraping of category: ${categoryName} and url: ${categoryUrl}`);
+      info(`Starting scraping of category: ${categoryName}, and url: ${categoryUrl}`);
       handleCategoryPage(categoryUrl);
       i++;
     }
