@@ -6,6 +6,7 @@ class IngramProductScraperJob < ApplicationJob
     phantomjsBin = "#{scraperBaseDir}/node_modules/phantomjs/bin/phantomjs"
     scriptPath = "#{scraperBaseDir}/dist/product_scraper.js"
     tmpDir = "#{scraperBaseDir}/tmp"
+    tmpFilepath = "#{tmpDir}/#{randTempFilename()}"
 
     urls = IngramProductListing.pending.limit(100).pluck(:product_url)
     
@@ -13,10 +14,7 @@ class IngramProductScraperJob < ApplicationJob
       return
     end
 
-    o = [('a'..'z'), ('A'..'Z')].map { |i| i.to_a }.flatten
-    tmpFilename = tmpDir + "/" + (0...50).map { o[rand(o.length)] }.join + ".txt"
-
-    File.open(tmpFilename, 'w') do |file| 
+    File.open(tmpFilepath, 'w') do |file| 
       urls.each { |url| file.puts(url) }
     end
 
@@ -50,14 +48,22 @@ class IngramProductScraperJob < ApplicationJob
         end
       end
     rescue Exception => e
-      File.delete(tmpFilename)
+      File.delete(tmpFilepath)
       raise e
     end
 
-    File.delete(tmpFilename)
+    File.delete(tmpFilepath)
 
     if $?.exitstatus != 0
       raise ArgumentError, output
     end
+  end
+
+
+  private 
+
+  def randTempFilename()
+    o = [('a'..'z'), ('A'..'Z')].map { |i| i.to_a }.flatten
+    (0...50).map { o[rand(o.length)] }.join
   end
 end
