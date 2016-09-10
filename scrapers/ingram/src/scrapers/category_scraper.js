@@ -119,14 +119,23 @@ function scrapeCategoryUrls(options) {
 
 /* APPLICATION LOGIC FUNCTIONS */
 
-function scrapeAllCategories(phantom, page) {
+function scrapeAllCategories(phantom, page, args) {
+  const whiteListedCategories = args[0];
   page.open(ALL_CATEGORIES_URL, function(status) {
     exitOnFailedStatus(phantom, page, status);
 
-    const categories = page.evaluate(scrapeCategoryUrls, { 
+    let categories = page.evaluate(scrapeCategoryUrls, { 
       categoryHeadingSelector: CATEGORY_HEADING_SELECTOR,
       baseUrl: BASE_URL 
     });
+
+    if (whiteListedCategories) {
+      categories = categories.filter(function(category) {
+        return whiteListedCategories.indexOf(category.categoryName) !== -1;
+      });
+    }
+
+    debug(`Running on categories: ${JSON.stringify(categories)}`);
 
     let i = 0;
 
@@ -215,19 +224,25 @@ function parseAndValidateCmdLineArgs(phantom) {
   const system = require('system');
   const args = system.args;
 
-  if (args.length !== 1) {
-    error('Usage: phantomjs category_scraper.js');
+  if (args.length !== 1 && args.length !== 2 ) {
+    error('Usage: phantomjs category_scraper.js [optional: comma separated category name list]');
     exit(phantom, ERROR_EXIT_CODE);
   }
+
+  return args[1] ? args[1].split(',') : null;
 }
 
 function run(phantom) {
-  parseAndValidateCmdLineArgs(phantom);
+  const whiteListedCategories = parseAndValidateCmdLineArgs(phantom);
 
   const page = require('webpage').create();
   configurePhantomJS(phantom, page);
 
-  login(phantom, page, scrapeAllCategories);
+  if (whiteListedCategories) {
+    info(`Running with white listed categories: ${JSON.stringify(whiteListedCategories)}`);
+  }
+
+  login(phantom, page, scrapeAllCategories, whiteListedCategories);
 }
 
 run(phantom);
