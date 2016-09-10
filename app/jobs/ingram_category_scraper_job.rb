@@ -15,11 +15,11 @@ class IngramCategoryScraperJob < ApplicationJob
     output.split("\n").each do |line|
       if line =~ /.* \[APP DATA\] (.*)/
         url = $1
-        pl = ProductListing.find_by_product_url(url)
+        pl = IngramProductListing.find_by_product_url(url)
         if pl
           pl.touch
         else
-          ProductListing.create(category: categoryName, category_url: categoryUrl, product_url: url)
+          IngramProductListing.create(category: categoryName, category_url: categoryUrl, product_url: url)
         end
       end
     end

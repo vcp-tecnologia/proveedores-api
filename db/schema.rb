@@ -15,13 +15,13 @@ ActiveRecord::Schema.define(version: 20160909055525) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "product_listings", force: :cascade do |t|
+  create_table "ingram_product_listings", force: :cascade do |t|
     t.string   "category"
     t.string   "category_url"
     t.string   "product_url"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
-    t.index ["product_url"], name: "index_product_listings_on_product_url", using: :btree
+    t.index ["product_url"], name: "index_ingram_product_listings_on_product_url", using: :btree
   end
 
   create_table "products", force: :cascade do |t|

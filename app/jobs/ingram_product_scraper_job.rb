@@ -7,7 +7,7 @@ class IngramProductScraperJob < ApplicationJob
     scriptPath = "#{scraperBaseDir}/dist/product_scraper.js"
     tmpDir = "#{scraperBaseDir}/tmp"
 
-    urls = ProductListing.pending.limit(100).pluck(:product_url)
+    urls = IngramProductListing.pending.limit(100).pluck(:product_url)
     
     if (urls.size == 0)
       return
