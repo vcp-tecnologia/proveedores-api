@@ -1,9 +1,10 @@
 {
-  "BASE_URL": "https://www.imstores.com/Ingrammicromx",
+  "BASE_URL": "https://www.imstores.com",
   "LOGIN_URL": "https://www.imstores.com/Ingrammicromx/login/login.aspx",
   "LOGGED_IN_URL": "https://www.imstores.com/Ingrammicromx/default.aspx",
   "LOGOUT_URL": "https://www.imstores.com/Ingrammicromx/login/logoff.aspx",
-  
+  "ALL_CATEGORIES_URL": "https://www.imstores.com/Ingrammicromx/AllCategories.aspx",
+
   "LOGIN_FORM_USERNAME_SELECTOR": "input[name='UserName']",
   "LOGIN_FORM_PASSWORD_SELECTOR": "input[name='txtPassword']",
   "LOGIN_FORM_SUBMIT_SELECTOR": "[name='LoginButton']",
@@ -12,6 +13,8 @@
   "CURRENT_PAGE_SELECTOR": "#ctl00_ContentPlaceHolder1_ddlPageNumber",
   "SPECS_TAB_SELECTOR": "ctl00_ContentPlaceHolder1_TabStrip1_1",
   "SPECS_TAB_SELECTOR": "ctl00_ContentPlaceHolder1_TabStrip1_1",
+  "PRODUCT_ROW_SELECTOR": ".Row",
+  "CATEGORY_HEADING_SELECTOR": ".FatherNode",
   
   "USERNAME": "CN44",
   "PASSWORD": "VCPtec13",
