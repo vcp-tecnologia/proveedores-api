@@ -19,6 +19,7 @@ import {
   CHANGE_RESULTS_PER_PAGE_WAIT_TIME,
   PAGINATION_WAIT_TIME,
   RESULTS_PER_PAGE,
+  NULL_VALUE,
 } from '../../config/settings';
 
 import { configurePhantomJS } from '../lib/phantom_configuration';
@@ -32,16 +33,39 @@ function changeResultsPerPage(options) {
   document.querySelector(options.resultsPerPageSelector).onchange();
 }
 
-function scrapeProductPaginatedPage(options) {
+function scrapePaginatedPage(options) {
   var rows = document.querySelectorAll('.Row');
   var numrows = rows.length;
 
-  var productUrl, i;
+  var unitsRegex = /^(\d+) +\[(\d+)\]$/;
+  var skuRegex = /^SKU: +(.*)$/;
+  var priceRegex = /^\$ +([0-9\.,]+)( +\$ +([0-9\.,]+))?$/;
+
+  var productUrl, units, sku, price;
+  var i, match;
   var products = [];
 
   for(i = 0; i < numrows; ++i) {
-    productUrl = options.baseUrl + '/' + rows[i].children[1].children[0].children[0].children[0].children[0].children[0].children[1].getAttribute('href');
-    products.push(productUrl);
+    var row = rows[i];
+
+    productUrl = options.baseUrl + '/' + row.children[1].children[0].children[0].children[0].children[0].children[0].children[1].getAttribute('href');
+    
+    match = unitsRegex.exec(row.children[2].innerText.trim());
+    units = match ? match[2] : options.nullValue;
+
+    match = skuRegex.exec(row.children[0].children[0].children[0].children[0].children[2].innerText.trim());
+    sku = match ? match[1] : options.nullValue;
+
+    match = priceRegex.exec(row.children[3].innerText.trim().replace('\n', ' '));
+    price = match ? (match[3] || match[1] || options.nullValue) : options.nullValue;
+
+    products.push({
+      proveedor: 'Ingram',
+      url: productUrl,
+      existencias: units,
+      precio: price,
+      sku: sku
+    });
   }
 
   return {
@@ -74,14 +98,14 @@ function getCurrentPage(options){
 
 /* APPLICATION LOGIC FUNCTIONS */
 
-function paginateAndScrapeCategoryPage(phantom, page) { 
+function paginateAndScrapeListings(phantom, page) { 
   let pageNumber = null;
 
   const paginationIntervalId = window.setInterval(function() {
     let newPageNumber = page.evaluate(getCurrentPage, { currentPageSelector: CURRENT_PAGE_SELECTOR });
 
     window.setTimeout(function() {
-      log('Page number is: ' + newPageNumber, 'DEBUG');
+      debug(`Page number is: ${newPageNumber}`);
 
       if (newPageNumber !== pageNumber) {
         pageNumber = newPageNumber;
@@ -90,7 +114,10 @@ function paginateAndScrapeCategoryPage(phantom, page) {
           nextPageSelector: NEXT_PAGE_SELECTOR
         });
 
-        const retVal = page.evaluate(scrapeProductPaginatedPage, { baseUrl: BASE_URL });
+        const retVal = page.evaluate(scrapePaginatedPage, { 
+          baseUrl: BASE_URL,
+          nullValue: NULL_VALUE
+        });
         
         if (retVal.status === 'error') {
           error(retVal.message);
@@ -100,8 +127,8 @@ function paginateAndScrapeCategoryPage(phantom, page) {
         debug(`Retrieved paginated data for ${retVal.products.length} products. Page ${pageNumber}`);
 
         for (let i = 0; i < retVal.products.length; ++i) {
-          let productUrl = retVal.products[i];
-          log(productUrl, 'DATA');
+          let product = retVal.products[i];
+          log(product, 'DATA');
         }
       }
       else {
@@ -123,7 +150,7 @@ function handleCategoryPage(phantom, page, categoryUrl) {
     });
 
     /* Wait for successfull refresh and proceed to scrape the whole paginated subcategory */
-    window.setTimeout(paginateAndScrapeCategoryPage, CHANGE_RESULTS_PER_PAGE_WAIT_TIME, phantom, page);    
+    window.setTimeout(paginateAndScrapeListings, CHANGE_RESULTS_PER_PAGE_WAIT_TIME, phantom, page);    
   });
 }
 

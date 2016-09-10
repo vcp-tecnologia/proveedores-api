@@ -128,7 +128,7 @@ function productData() {
     var specs = specifications();
     
     return {
-      proveedor: "Ingram",
+      proveedor: 'Ingram',
       url: window.location.href,
       titulo: title,
       foto_url: imageUrl,
