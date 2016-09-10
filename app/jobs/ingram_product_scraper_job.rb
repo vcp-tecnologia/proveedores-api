@@ -2,24 +2,22 @@ class IngramProductScraperJob < ApplicationJob
   queue_as :default
 
   def perform()
-    scraperBaseDir = "/Users/work/Developer/vcp/ingramscraper"
-    phantomjsBin = "#{scraperBaseDir}/node_modules/phantomjs/bin/phantomjs"
-    scriptPath = "#{scraperBaseDir}/dist/product_scraper.js"
-    tmpDir = "#{scraperBaseDir}/tmp"
-    tmpFilepath = "#{tmpDir}/#{randTempFilename()}"
-
-    urls = IngramProductListing.pending.limit(100).pluck(:product_url)
-    
+    urls = IngramProductListing.pending.limit(100).pluck(:product_url)    
     if (urls.size == 0)
       return
     end
+
+    baseDir = "#{Rails.application.config.scrapers_dir}/ingram"
+    phantomjsBin = "#{baseDir}/node_modules/phantomjs/bin/phantomjs"
+    scriptPath = "#{baseDir}/dist/product_scraper.js"
+    tmpFilepath = "#{Rails.application.config.scrapers_tmp_dir}/#{randTempFilename()}"
 
     File.open(tmpFilepath, 'w') do |file| 
       urls.each { |url| file.puts(url) }
     end
 
     begin
-      command = "#{phantomjsBin} #{scriptPath} #{tmpFilename}"
+      command = "#{phantomjsBin} #{scriptPath} #{tmpFilepath}"
       output = %x`#{command}`
 
       output.split("\n").each do |line|

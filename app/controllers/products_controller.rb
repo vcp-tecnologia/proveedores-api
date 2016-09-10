@@ -1,10 +1,11 @@
 class ProductsController < ApplicationController
   before_filter :filter_params, only: [:productos]
+  has_scope :proveedor
   has_scope :fecha
   has_scope :categoria
   has_scope :subcategoria
-  has_scope :proveedor
   has_scope :id_proveedor
+  has_scope :fabricante
 
   def productos
     @products = apply_scopes(Product).all
@@ -25,6 +26,6 @@ class ProductsController < ApplicationController
   private 
 
   def filter_params
-    params.permit(:proveedor, :fecha, :categoria, :subcategoria, :id_proveedor)
+    params.permit(:proveedor, :fecha, :categoria, :subcategoria, :id_proveedor, :fabricante)
   end
 end

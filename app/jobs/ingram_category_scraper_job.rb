@@ -2,10 +2,11 @@ class IngramCategoryScraperJob < ApplicationJob
   queue_as :default
 
   def perform(categoryName, categoryUrl)
-    scraperBaseDir = "/Users/work/Developer/vcp/ingramscraper"
-    phantomjsBin = "#{scraperBaseDir}/node_modules/phantomjs/bin/phantomjs"
-    scriptPath = "#{scraperBaseDir}/dist/category_scraper.js"
-    command = "#{phantomjsBin} #{scriptPath} \"#{categoryName}\" #{categoryUrl}"
+    baseDir = "#{Rails.application.config.scrapers_dir}/ingram"
+    phantomjsBin = "#{baseDir}/node_modules/phantomjs/bin/phantomjs"
+    scriptPath = "#{baseDir}/dist/category_scraper.js"
+
+    command = "#{phantomjsBin} #{scriptPath} \"#{categoryName}\" \"#{categoryUrl}\""
     output = %x`#{command}`
 
     if $?.exitstatus != 0
