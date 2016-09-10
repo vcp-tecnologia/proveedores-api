@@ -85,6 +85,7 @@ export const login = (phantom: any, page: any, callback: any, ...args: Array<any
         callback(phantom, page, args);
       }
     }, LOGIN_WAIT_TIME);
+    info(`Waiting ${LOGIN_WAIT_TIME / 1000} seconds for login.`);
   });
 }
 

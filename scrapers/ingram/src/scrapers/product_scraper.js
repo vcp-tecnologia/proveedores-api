@@ -196,6 +196,7 @@ function scrapeProducts(phantom, page, args) {
         }
         nextProduct();
       }, SPECS_LOAD_WAIT_TIME);
+      info(`Waiting ${SPECS_LOAD_WAIT_TIME / 1000} seconds for product specs to load.`);
     });
   }
 

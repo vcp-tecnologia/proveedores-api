@@ -20,6 +20,7 @@ import {
   PAGINATION_WAIT_TIME,
   RESULTS_PER_PAGE,
   NULL_VALUE,
+  INITIAL_PAGE_LOAD_WAIT_TIME,
 } from '../../config/settings';
 
 import { configurePhantomJS } from '../lib/phantom_configuration';
@@ -34,19 +35,11 @@ function changeResultsPerPage(options) {
 }
 
 function scrapePaginatedPage(options) {
-  var rows = document.querySelectorAll('.Row');
-  var numrows = rows.length;
-
-  var unitsRegex = /^(\d+) +\[(\d+)\]$/;
-  var skuRegex = /^SKU: +(.*)$/;
-  var priceRegex = /^\$ +([0-9\.,]+)( +\$ +([0-9\.,]+))?$/;
-
-  var productUrl, units, sku, price;
-  var i, match;
-  var products = [];
-
-  for(i = 0; i < numrows; ++i) {
-    var row = rows[i];
+  function extractProductRowData(row) {
+    var unitsRegex = /^(\d+) +\[(\d+)\]$/;
+    var skuRegex = /^SKU: +(.*)$/;
+    var priceRegex = /^\$ +([0-9\.,]+)( +\$ +([0-9\.,]+))?$/;
+    var productUrl, units, sku, price, match;
 
     productUrl = options.baseUrl + '/' + row.children[1].children[0].children[0].children[0].children[0].children[0].children[1].getAttribute('href');
     
@@ -59,13 +52,22 @@ function scrapePaginatedPage(options) {
     match = priceRegex.exec(row.children[3].innerText.trim().replace('\n', ' '));
     price = match ? (match[3] || match[1] || options.nullValue) : options.nullValue;
 
-    products.push({
+    return {
       proveedor: 'Ingram',
       url: productUrl,
       existencias: units,
       precio: price,
       sku: sku
-    });
+    };
+  }
+
+  var rows = document.querySelectorAll('.Row');
+  var numrows = rows.length;
+  var products = [];
+  var i;
+
+  for(i = 0; i < numrows; ++i) {
+    products.push(extractProductRowData(rows[i]));
   }
 
   return {
@@ -75,9 +77,6 @@ function scrapePaginatedPage(options) {
 }
 
 function advanceResultsPage(options){
-  if(options.noop) {
-    return;
-  }
   var nextPage = document.querySelector(options.nextPageSelector);
   if (nextPage) {
     nextPage.click();
@@ -98,59 +97,66 @@ function getCurrentPage(options){
 
 /* APPLICATION LOGIC FUNCTIONS */
 
-function paginateAndScrapeListings(phantom, page) { 
-  let pageNumber = null;
 
-  const paginationIntervalId = window.setInterval(function() {
+function paginateAndScrapeListings(phantom, page) {
+  let pageNumber = null;
+  paginateAndScrape();
+    
+  /* Change the page on an interval */
+  const paginationIntervalId = window.setInterval(paginateAndScrape, PAGINATION_WAIT_TIME);
+
+  function paginateAndScrape() {
     let newPageNumber = page.evaluate(getCurrentPage, { currentPageSelector: CURRENT_PAGE_SELECTOR });
 
-    window.setTimeout(function() {
-      debug(`Page number is: ${newPageNumber}`);
+    debug(`Page number is: ${newPageNumber}`);
 
-      if (newPageNumber !== pageNumber) {
-        pageNumber = newPageNumber;
-        page.evaluate(advanceResultsPage, {
-          nooop: pageNumber === 1,
-          nextPageSelector: NEXT_PAGE_SELECTOR
-        });
-
-        const retVal = page.evaluate(scrapePaginatedPage, { 
-          baseUrl: BASE_URL,
-          nullValue: NULL_VALUE
-        });
-        
-        if (retVal.status === 'error') {
-          error(retVal.message);
-          logoff(phantom, page, ERROR_EXIT_CODE);
-        }
-
-        debug(`Retrieved paginated data for ${retVal.products.length} products. Page ${pageNumber}`);
-
-        for (let i = 0; i < retVal.products.length; ++i) {
-          let product = retVal.products[i];
-          log(product, 'DATA');
-        }
+    if (newPageNumber !== pageNumber) {
+      const retVal = page.evaluate(scrapePaginatedPage, { 
+        baseUrl: BASE_URL,
+        nullValue: NULL_VALUE
+      });
+      
+      if (retVal.status === 'error') {
+        error(retVal.message);
+        logoff(phantom, page, ERROR_EXIT_CODE);
       }
-      else {
-        clearInterval(paginationIntervalId);
-        logoff(phantom, page, SUCCESS_EXIT_CODE);
-      }      
-    }, 2000);
-  }, PAGINATION_WAIT_TIME);
+
+      debug(`Retrieved paginated data for ${retVal.products.length} products. Page ${newPageNumber}`);
+
+      for (let i = 0; i < retVal.products.length; ++i) {
+        let product = retVal.products[i];
+        log(JSON.stringify(product), 'DATA');
+      }
+
+      pageNumber = newPageNumber;
+      page.evaluate(advanceResultsPage, { nextPageSelector: NEXT_PAGE_SELECTOR });
+    
+      info(`Waiting ${PAGINATION_WAIT_TIME / 1000} seconds for page change.`);
+    } 
+    else {
+      info(`Reached last page. Finished scraping.`); 
+      clearInterval(paginationIntervalId);
+      logoff(phantom, page, SUCCESS_EXIT_CODE);
+    }
+  }
 }
 
 function handleCategoryPage(phantom, page, categoryUrl) {
   page.open(categoryUrl, function (status){
     exitOnFailedStatus(phantom, page, status);
 
-    /* Change the number of results per page to minimize pagination */
-    page.evaluate(changeResultsPerPage, { 
-      resultsPerPage: RESULTS_PER_PAGE,
-      resultsPerPageSelector: RESULTS_PER_PAGE_SELECTOR
-    });
+    window.setTimeout(function() {
+      /* Change the number of results per page to minimize pagination */
+      page.evaluate(changeResultsPerPage, { 
+        resultsPerPage: RESULTS_PER_PAGE,
+        resultsPerPageSelector: RESULTS_PER_PAGE_SELECTOR
+      });
 
-    /* Wait for successfull refresh and proceed to scrape the whole paginated subcategory */
-    window.setTimeout(paginateAndScrapeListings, CHANGE_RESULTS_PER_PAGE_WAIT_TIME, phantom, page);    
+      /* Wait for successfull refresh and proceed to scrape the whole paginated subcategory */
+      window.setTimeout(paginateAndScrapeListings, CHANGE_RESULTS_PER_PAGE_WAIT_TIME, phantom, page);    
+      info(`Waiting ${CHANGE_RESULTS_PER_PAGE_WAIT_TIME / 1000} seconds for change in number of items per page.`);  
+    }, INITIAL_PAGE_LOAD_WAIT_TIME);    
+    info(`Waiting ${INITIAL_PAGE_LOAD_WAIT_TIME / 1000} seconds for page load.`);
   });
 }
 
