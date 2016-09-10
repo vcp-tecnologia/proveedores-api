@@ -15,7 +15,7 @@ import {
 export function configurePhantomJS(phantom, page) {
   info('Configuring PhantomJS with parameters:');
   info(`    USER_AGENT: ${USER_AGENT}`);
-  info(`    TIMEOUT: ${RESOURCE_TIMEOUT} milliseconds`);
+  info(`    TIMEOUT: ${RESOURCE_TIMEOUT / 1000} seconds`);
   phantom.onError = (msg, trace) => {
     let msgStack = [msg];
     if (trace && trace.length) {
