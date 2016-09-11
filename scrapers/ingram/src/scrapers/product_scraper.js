@@ -181,22 +181,24 @@ function scrapeProducts(phantom, page, args) {
 
   function handleProductPage(url){
     page.open(url, function(status){
-      checkPageLoadStatus(phantom, page, status, false);
+      const isSuccess = checkPageLoadStatus(phantom, page, status);
   
-      /* click on the technical specs tab to load them into the DOM */
-      page.evaluate(loadTechSpecs, { specsTabSelector: SPECS_TAB_SELECTOR });
+      if (isSuccess) {
+        /* click on the technical specs tab to load them into the DOM */
+        page.evaluate(loadTechSpecs, { specsTabSelector: SPECS_TAB_SELECTOR });
 
-      window.setTimeout(function() {
-        const data = page.evaluate(productData);
-        if (_.isEmpty(data)) {
-          info(`Could not retrieve information for product at: ${url}`);
-        }
-        else {
-          log(JSON.stringify(data), 'DATA');          
-        }
-        nextProduct();
-      }, SPECS_LOAD_WAIT_TIME);
-      info(`Waiting ${SPECS_LOAD_WAIT_TIME / 1000} seconds for product specs to load.`);
+        window.setTimeout(function() {
+          const data = page.evaluate(productData);
+          if (_.isEmpty(data)) {
+            info(`Could not retrieve information for product at: ${url}`);
+          }
+          else {
+            log(JSON.stringify(data), 'DATA');          
+          }
+          nextProduct();
+        }, SPECS_LOAD_WAIT_TIME);
+        info(`Waiting ${SPECS_LOAD_WAIT_TIME / 1000} seconds for product specs to load.`);        
+      }
     });
   }
 

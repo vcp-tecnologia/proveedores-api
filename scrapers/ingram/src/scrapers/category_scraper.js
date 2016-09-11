@@ -121,7 +121,11 @@ function scrapeCategoryUrls(options) {
 function scrapeAllCategories(phantom, page, args) {
   const whiteListedCategories = args[0];
   page.open(ALL_CATEGORIES_URL, function(status) {
-    checkPageLoadStatus(phantom, page, status);
+    const isSuccess = checkPageLoadStatus(phantom, page, status);
+
+    if (!isSuccess) {
+      return;
+    }
 
     let categories = page.evaluate(scrapeCategoryUrls, { 
       categoryHeadingSelector: CATEGORY_HEADING_SELECTOR,
@@ -150,20 +154,22 @@ function scrapeAllCategories(phantom, page, args) {
 
     function handleCategoryPage(categoryUrl) {
       page.open(categoryUrl, function (status){
-        checkPageLoadStatus(phantom, page, status, false);
+        const isSuccess = checkPageLoadStatus(phantom, page, status);
 
-        window.setTimeout(function() {
-          /* Change the number of results per page to minimize pagination */
-          page.evaluate(changeResultsPerPage, { 
-            resultsPerPage: RESULTS_PER_PAGE,
-            resultsPerPageSelector: RESULTS_PER_PAGE_SELECTOR
-          });
+        if(isSuccess){
+          window.setTimeout(function() {
+            /* Change the number of results per page to minimize pagination */
+            page.evaluate(changeResultsPerPage, { 
+              resultsPerPage: RESULTS_PER_PAGE,
+              resultsPerPageSelector: RESULTS_PER_PAGE_SELECTOR
+            });
 
-          /* Wait for successfull refresh and proceed to scrape the whole paginated subcategory */
-          window.setTimeout(paginateAndScrapeListings, CHANGE_RESULTS_PER_PAGE_WAIT_TIME);    
-          info(`Waiting ${CHANGE_RESULTS_PER_PAGE_WAIT_TIME / 1000} seconds for change in number of items per page.`);  
-        }, INITIAL_PAGE_LOAD_WAIT_TIME);    
-        info(`Waiting ${INITIAL_PAGE_LOAD_WAIT_TIME / 1000} seconds for page load.`);
+            /* Wait for successfull refresh and proceed to scrape the whole paginated subcategory */
+            window.setTimeout(paginateAndScrapeListings, CHANGE_RESULTS_PER_PAGE_WAIT_TIME);    
+            info(`Waiting ${CHANGE_RESULTS_PER_PAGE_WAIT_TIME / 1000} seconds for change in number of items per page.`);  
+          }, INITIAL_PAGE_LOAD_WAIT_TIME);    
+          info(`Waiting ${INITIAL_PAGE_LOAD_WAIT_TIME / 1000} seconds for page load.`);
+        }
       });
     }
 

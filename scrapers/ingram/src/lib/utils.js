@@ -33,16 +33,17 @@ export const exit = (phantom: any, exitCode: number): void => {
   phantom.exit(exitCode);
 }
 
-export const checkPageLoadStatus = (phantom: any, page: any, status: string, exitIfFailed: boolean = true): void => {
+export const checkPageLoadStatus = (phantom: any, page: any, status: string, exitIfFailed: boolean = true): boolean => {
   if (status === 'success') {
     info(`Successfully opened page: ${page.url}`);
-    return;
+    return true;
   }
   else {
     error(`Failed to load page: ${page.url}`);
     if (exitIfFailed) {
       logoff(phantom, page, ERROR_EXIT_CODE);      
     }
+    return false;
   }
 }
 
@@ -62,8 +63,12 @@ export const logoff = (phantom: any, page: any, exitCode: number): void => {
 
 export const login = (phantom: any, page: any, callback: any, ...args: Array<any>) => {
   page.open(LOGIN_URL, function(status){
-    checkPageLoadStatus(phantom, page, status);
+    const isSuccess = checkPageLoadStatus(phantom, page, status);
 
+    if (!isSuccess){
+      return;
+    }
+    
     /* Fill out login form with credentials and click submit */
     info('Attempting to log in.');
     page.evaluate(fillLoginForm, {
