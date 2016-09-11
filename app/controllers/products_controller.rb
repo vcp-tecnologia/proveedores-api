@@ -1,4 +1,7 @@
 class ProductsController < ApplicationController
+  include ActionController::HttpAuthentication::Basic::ControllerMethods
+  http_basic_authenticate_with name: Rails.application.config.basic_auth_username, password: Rails.application.config.basic_auth_password
+
   before_filter :filter_params, only: [:productos]
   has_scope :proveedor
   has_scope :fecha
