@@ -130,11 +130,11 @@ function scrapeAllCategories(phantom, page, args) {
 
     if (whiteListedCategories) {
       categories = categories.filter(function(category) {
-        return whiteListedCategories.indexOf(category.categoryName) !== -1;
+        return whiteListedCategories.indexOf(category.categoryUrl) !== -1;
       });
     }
 
-    debug(`Running on categories: ${JSON.stringify(categories)}`);
+    debug(`Running on ${categories.length} categories: ${JSON.stringify(categories)}`);
 
     let i = 0;
 
@@ -228,7 +228,7 @@ function parseAndValidateCmdLineArgs(phantom) {
     exit(phantom, ERROR_EXIT_CODE);
   }
 
-  return args[1] ? args[1].split(',') : null;
+  return args[1] ? args[1].split(' ') : null;
 }
 
 function run(phantom) {
