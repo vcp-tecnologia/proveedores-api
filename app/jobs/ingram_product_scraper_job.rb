@@ -2,7 +2,7 @@ class IngramProductScraperJob < ApplicationJob
   queue_as :default
 
   def perform(numProductsToScrape = 100)
-    urls = Product.missing_data.limit(numProductsToScrape).pluck(:url)    
+    urls = Product.missing_data.limit(numProductsToScrape).pluck(:url).shuffle    
     if (urls.size == 0)
       return
     end
@@ -26,6 +26,8 @@ class IngramProductScraperJob < ApplicationJob
 
       output = %x`#{command}`
 
+      puts "OUTPUT:\n\n#{output}"
+
       output.split("\n").each do |line|
         if line =~ /.* \[APP DATA\] (.*)/
           data = $1
@@ -48,12 +50,13 @@ class IngramProductScraperJob < ApplicationJob
           end
         end
       end
+
+      File.delete(tmpFilepath)
+
     rescue Exception => e
       File.delete(tmpFilepath)
       raise e
     end
-
-    File.delete(tmpFilepath)
 
     if $?.exitstatus != 0
       raise ArgumentError, output
