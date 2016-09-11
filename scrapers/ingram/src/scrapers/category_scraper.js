@@ -56,7 +56,6 @@ function scrapePaginatedPage(options) {
     price = match ? (match[3] || match[1] || options.nullValue) : options.nullValue;
 
     return {
-      proveedor: 'Ingram',
       url: productUrl,
       existencias: units,
       precio: price,
