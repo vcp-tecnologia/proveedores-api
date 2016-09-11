@@ -1,8 +1,8 @@
 class IngramProductScraperJob < ApplicationJob
   queue_as :default
 
-  def perform()
-    urls = Product.missing_data.limit(100).pluck(:url)    
+  def perform(numProductsToScrape = 100)
+    urls = Product.missing_data.limit(numProductsToScrape).pluck(:url)    
     if (urls.size == 0)
       return
     end
@@ -37,7 +37,7 @@ class IngramProductScraperJob < ApplicationJob
           
           product = Product.find_by_url(url)
           if product
-            Product.update_attributes({
+            product.update_attributes({
               category: category,
               subcategory: subcategory,
               data: data,
