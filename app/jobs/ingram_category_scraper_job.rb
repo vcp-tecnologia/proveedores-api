@@ -18,6 +18,8 @@ class IngramCategoryScraperJob < ApplicationJob
 
     puts "Finshed running command, with exit status #{$?.exitstatus}"
 
+    puts "OUTPUT:\n\n#{output}"
+
     if $?.exitstatus != 0
       raise ArgumentError, output
     end
