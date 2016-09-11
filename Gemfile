@@ -23,6 +23,7 @@ gem 'sidekiq'
 gem 'sinatra', github: 'sinatra/sinatra'
 gem 'sidekiq-cron'
 gem 'has_scope'
+gem 'will_paginate'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
