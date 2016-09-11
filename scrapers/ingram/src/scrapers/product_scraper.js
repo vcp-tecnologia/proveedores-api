@@ -139,10 +139,8 @@ function productData() {
       categoria: category,
       subcategoria: subcategory,
       msrp: msrp,
-      precio: price,
       especificaciones: specs,
-      dimensiones: dims,
-      existencias: inv
+      dimensiones: dims
     }
 
   }
