@@ -2,10 +2,12 @@ class IngramProductScraperJob < ApplicationJob
   queue_as :default
 
   def perform()
-    urls = IngramProductListing.pending.limit(100).pluck(:product_url)    
+    urls = Product.missing_data.limit(100).pluck(:url)    
     if (urls.size == 0)
       return
     end
+
+    puts "Retrieving data for #{urls.size} products"
 
     baseDir = "#{Rails.application.config.scrapers_dir}/ingram"
     phantomjsBin = "#{baseDir}/node_modules/phantomjs/bin/phantomjs"
@@ -16,8 +18,12 @@ class IngramProductScraperJob < ApplicationJob
       urls.each { |url| file.puts(url) }
     end
 
+    puts "Putting urls in tmp file: #{tmpFilepath}"
+
     begin
       command = "#{phantomjsBin} #{scriptPath} #{tmpFilepath}"
+      puts "Running command #{command}"
+
       output = %x`#{command}`
 
       output.split("\n").each do |line|
@@ -31,13 +37,10 @@ class IngramProductScraperJob < ApplicationJob
           
           product = Product.find_by_url(url)
           if product
-            Product.update_attributes(data: data)
-          else
-            Product.create({
+            Product.update_attributes({
               category: category,
               subcategory: subcategory,
               data: data,
-              url: url,
               vendor: "Ingram",
               vendor_id: sku,
               manufacturer: manufacturer

@@ -2,7 +2,8 @@ class Product < ApplicationRecord
   scope :scraped_before, ->(date) { where("updated_at < ?", date.to_time.beginning_of_day) }
   scope :scraped_on, ->(date) { where("updated_at >= ? AND updated_at <= ?", date.to_time.beginning_of_day, date.to_time.end_of_day) }
   scope :scraped_today, -> { scraped_on(Date.today) }
-
+  scope :missing_data, -> { where(data: nil) }
+  
   scope :fecha, ->(date) { where("updated_at >= ? AND updated_at <= ?", date.to_time.beginning_of_day, date.to_time.end_of_day) }
   scope :proveedor, ->(prov) { where(vendor: prov) }
   scope :categoria, ->(cat) { where(category: cat) }
