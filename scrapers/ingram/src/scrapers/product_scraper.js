@@ -4,7 +4,7 @@ import {
   info,
   log,
   exit,
-  exitOnFailedStatus,
+  checkPageLoadStatus,
   logoff,
   login,
 } from '../lib/utils';
@@ -181,7 +181,7 @@ function scrapeProducts(phantom, page, args) {
 
   function handleProductPage(url){
     page.open(url, function(status){
-      exitOnFailedStatus(phantom, page, status);
+      checkPageLoadStatus(phantom, page, status, false);
   
       /* click on the technical specs tab to load them into the DOM */
       page.evaluate(loadTechSpecs, { specsTabSelector: SPECS_TAB_SELECTOR });

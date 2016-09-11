@@ -4,7 +4,7 @@ import {
   info,
   log,
   exit,
-  exitOnFailedStatus,
+  checkPageLoadStatus,
   logoff,
   login,
 } from '../lib/utils';
@@ -121,7 +121,7 @@ function scrapeCategoryUrls(options) {
 function scrapeAllCategories(phantom, page, args) {
   const whiteListedCategories = args[0];
   page.open(ALL_CATEGORIES_URL, function(status) {
-    exitOnFailedStatus(phantom, page, status);
+    checkPageLoadStatus(phantom, page, status);
 
     let categories = page.evaluate(scrapeCategoryUrls, { 
       categoryHeadingSelector: CATEGORY_HEADING_SELECTOR,
@@ -150,7 +150,7 @@ function scrapeAllCategories(phantom, page, args) {
 
     function handleCategoryPage(categoryUrl) {
       page.open(categoryUrl, function (status){
-        exitOnFailedStatus(phantom, page, status);
+        checkPageLoadStatus(phantom, page, status, false);
 
         window.setTimeout(function() {
           /* Change the number of results per page to minimize pagination */

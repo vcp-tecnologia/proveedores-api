@@ -28,21 +28,21 @@ export const log = (message: string, label: string): void => {
   console.log(`${timestamp()} [APP ${label}] ${message}`);
 }
 
-
 export const exit = (phantom: any, exitCode: number): void => {
   info(`Exiting with code: ${exitCode}`);
   phantom.exit(exitCode);
 }
 
-
-export const exitOnFailedStatus = (phantom: any, page: any, status: string): void => {
+export const checkPageLoadStatus = (phantom: any, page: any, status: string, exitIfFailed: boolean = true): void => {
   if (status === 'success') {
     info(`Successfully opened page: ${page.url}`);
     return;
   }
   else {
     error(`Failed to load page: ${page.url}`);
-    logoff(phantom, page, ERROR_EXIT_CODE);
+    if (exitIfFailed) {
+      logoff(phantom, page, ERROR_EXIT_CODE);      
+    }
   }
 }
 
@@ -62,7 +62,7 @@ export const logoff = (phantom: any, page: any, exitCode: number): void => {
 
 export const login = (phantom: any, page: any, callback: any, ...args: Array<any>) => {
   page.open(LOGIN_URL, function(status){
-    exitOnFailedStatus(phantom, page, status);
+    checkPageLoadStatus(phantom, page, status);
 
     /* Fill out login form with credentials and click submit */
     info('Attempting to log in.');
