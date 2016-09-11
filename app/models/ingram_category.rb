@@ -1,0 +1,2 @@
+class IngramCategory < ApplicationRecord
+end

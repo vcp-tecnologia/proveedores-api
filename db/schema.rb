@@ -10,28 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160909055525) do
+ActiveRecord::Schema.define(version: 20160911015749) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "ingram_product_listings", force: :cascade do |t|
-    t.string   "category"
-    t.string   "category_url"
-    t.string   "product_url"
+  create_table "ingram_categories", force: :cascade do |t|
+    t.string   "name"
+    t.string   "url"
+    t.datetime "last_scraped"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
+  end
+
+  create_table "ingram_product_listings", force: :cascade do |t|
+    t.string   "product_url"
+    t.string   "sku"
+    t.boolean  "is_new_product", default: true
+    t.integer  "units"
+    t.float    "price"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.index ["product_url"], name: "index_ingram_product_listings_on_product_url", using: :btree
   end
 
   create_table "products", force: :cascade do |t|
     t.string   "category"
     t.string   "subcategory"
-    t.text     "data"
     t.string   "url"
     t.string   "vendor"
     t.string   "vendor_id"
     t.string   "manufacturer"
+    t.float    "price"
+    t.integer  "units"
+    t.text     "data"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
     t.index ["url"], name: "index_products_on_url", using: :btree
