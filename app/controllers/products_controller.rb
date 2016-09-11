@@ -33,8 +33,7 @@ class ProductsController < ApplicationController
   end
 
   def proveedores
-    proveedores = Product.select(:vendor).distinct.pluck(:vendor)
-    proveedores = [] if proveedores == [nil]
+    proveedores = Product.select(:vendor).distinct.pluck(:vendor).select{ |p| !p.nil? }
     render json: {
       proveedores: proveedores
     }
