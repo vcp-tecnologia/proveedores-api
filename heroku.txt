@@ -1,0 +1,3 @@
+heroku create
+heroku buildpacks:add heroku/nodejs
+heroku run rails db:migrate
