@@ -40,6 +40,10 @@ export function configurePhantomJS(phantom, page) {
     }
   };
 
+  page.onAlert = function(msg) {
+    info(`ALERT: ${msg}`);
+  };
+
   page.onError = (msg, trace) => {
     let msgStack = [msg];
     if (trace && trace.length) {

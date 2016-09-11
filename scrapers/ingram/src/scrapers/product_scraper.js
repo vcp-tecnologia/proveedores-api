@@ -172,14 +172,14 @@ function scrapeProducts(phantom, page, args) {
     if(i >= productUrls.length){
       exit(phantom, SUCCESS_EXIT_CODE);
     }
-    info(`Processing product ${i+1} out of ${productUrls.length}.`);
+    info(`Processing product ${i+1} out of ${productUrls.length} at: ${productUrls[i]}`);
     handleProductPage(productUrls[i]);
     i++;
   }
 
   function handleProductPage(url){
     page.open(url, function(status){
-      const isSuccess = checkPageLoadStatus(phantom, page, status);
+      const isSuccess = checkPageLoadStatus(phantom, page, status, false);
   
       if (isSuccess) {
         /* click on the technical specs tab to load them into the DOM */
@@ -196,6 +196,10 @@ function scrapeProducts(phantom, page, args) {
           nextProduct();
         }, SPECS_LOAD_WAIT_TIME);
         info(`Waiting ${SPECS_LOAD_WAIT_TIME / 1000} seconds for product specs to load.`);        
+      }
+      else {
+        info(`Skipping product at: ${url}`);
+        nextProduct();
       }
     });
   }

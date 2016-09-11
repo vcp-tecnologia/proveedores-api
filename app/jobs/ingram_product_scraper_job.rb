@@ -1,8 +1,8 @@
 class IngramProductScraperJob < ApplicationJob
   queue_as :default
 
-  def perform(numProductsToScrape = 100)
-    urls = Product.missing_data.limit(numProductsToScrape).pluck(:url).shuffle    
+  def perform(numProductsToScrape = 100, blacklistUrls = [])
+    urls = Product.missing_data.limit(numProductsToScrape).pluck(:url).shuffle - blacklistUrls  
     if (urls.size == 0)
       return
     end
