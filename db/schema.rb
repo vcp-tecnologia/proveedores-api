@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160911042920) do
+ActiveRecord::Schema.define(version: 20160911015749) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,13 +21,6 @@ ActiveRecord::Schema.define(version: 20160911042920) do
     t.datetime "last_scraped"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
-  end
-
-  create_table "ingram_new_product_queue_items", force: :cascade do |t|
-    t.string   "product_url"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
-    t.index ["product_url"], name: "index_ingram_new_product_queue_items_on_product_url", unique: true, using: :btree
   end
 
   create_table "products", force: :cascade do |t|

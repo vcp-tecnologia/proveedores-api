@@ -6,7 +6,7 @@ class IngramCategoryScraperJob < ApplicationJob
     phantomjsBin = "#{baseDir}/node_modules/phantomjs/bin/phantomjs"
     scriptPath = "#{baseDir}/dist/category_scraper.js"
 
-    categoriesToScrape = IngramCategory.pending.limit(2)
+    categoriesToScrape = IngramCategory.pending.limit(1)
 
     puts "Scraping categories: #{categoriesToScrape.pluck(:name)}"
 
@@ -48,6 +48,7 @@ class IngramCategoryScraperJob < ApplicationJob
             price: precio,
             units: existencias
           )
+        end
       end
     end
 
