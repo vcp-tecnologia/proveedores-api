@@ -65,7 +65,9 @@ function productData() {
         var dim = dimensions[i];
         var property = dim.children[0].innerText.trim().replace(":", "").toLowerCase();
         var value = dim.children[1].innerText.trim().toLowerCase();
-        output[property] = value;
+        if (property !== "" && value !== ""){
+          output[property] = value;
+        }
       }        
     }
 
