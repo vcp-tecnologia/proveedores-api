@@ -15,7 +15,7 @@ class ProductsController < ApplicationController
   def productos
     pageSize = params[:resultados_por_pagina] || PAGE_SIZE
     totalPages = (apply_scopes(Product).complete_data.count / pageSize.to_f).ceil
-    page = params[:page] ? params[:page].to_i : 1
+    page = params[:pagina] ? params[:pagina].to_i : 1
     @products = apply_scopes(Product).complete_data.paginate(:page => page, :per_page => pageSize)
     products = @products.pluck(:data, :updated_at, :price, :units).each.map do |productData, modDate, price, units|
       data = JSON.parse(productData)
@@ -42,6 +42,6 @@ class ProductsController < ApplicationController
   private 
 
   def filter_params
-    params.permit(:proveedor, :fecha, :categoria, :subcategoria, :id_proveedor, :fabricante, :page)
+    params.permit(:proveedor, :fecha, :categoria, :subcategoria, :id_proveedor, :fabricante, :pagina, :resultados_por_pagina)
   end
 end
