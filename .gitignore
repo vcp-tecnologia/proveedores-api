@@ -17,7 +17,8 @@
 .byebug_history
 *.DS_Store
 
-
+config/database.yml
+config/application.yml
 
 scrapers/ingram/node_modules
 scrapers/ingram/dist
