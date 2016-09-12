@@ -19,7 +19,7 @@ class ProductsController < ApplicationController
     @products = apply_scopes(Product).complete_data.paginate(:page => page, :per_page => pageSize)
     products = @products.pluck(:data, :updated_at, :price, :units).each.map do |productData, modDate, price, units|
       data = JSON.parse(productData)
-      data[:fecha_acualizado] = modDate.strftime("%F")
+      data[:fecha_acualizado] = modDate.strftime("%D %r")
       data[:precio] = price
       data[:existencias] = units
       data      
