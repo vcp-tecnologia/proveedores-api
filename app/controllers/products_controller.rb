@@ -27,7 +27,7 @@ class ProductsController < ApplicationController
     render json: {
       pagina: page,
       total_paginas: totalPages,
-      numero_de_resultados: products.size,
+      numero_de_resultados_por_pagina: products.size,
       productos: products
     }
   end
