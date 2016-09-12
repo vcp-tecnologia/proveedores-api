@@ -28,9 +28,6 @@ module ProveedoresApi
     config.api_only = true
     config.active_job.queue_adapter = :sidekiq
 
-    config.scrapers_dir = Rails.root.join('scrapers')
-    config.scrapers_tmp_dir = Rails.root.join('tmp', 'scrapers')
-
     config.basic_auth_username = ENV['BASIC_AUTH_USERNAME'] || 'youzer'
     config.basic_auth_password = ENV['BASIC_AUTH_PASSWORD'] || 'assward'
   end

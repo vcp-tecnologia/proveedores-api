@@ -2,9 +2,8 @@ class IngramCategoryScraperJob < ApplicationJob
   queue_as :default
 
   def perform(numCategoriesToScrape = 4)
-    baseDir = "#{Rails.application.config.scrapers_dir}/ingram"
-    phantomjsBin = "#{baseDir}/node_modules/phantomjs/bin/phantomjs"
-    scriptPath = "#{baseDir}/dist/category_scraper.js"
+    phantomjsBin = "#{Rails.root}/node_modules/phantomjs/bin/phantomjs"
+    scriptPath = "#{Rails.root.join('app', 'javascript')}/category_scraper.js"
 
     categoriesToScrape = IngramCategory.pending.limit(numCategoriesToScrape)
 

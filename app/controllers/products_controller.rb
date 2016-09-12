@@ -28,7 +28,7 @@ class ProductsController < ApplicationController
       pagina: page,
       total_paginas: totalPages,
       numero_de_resultados: products.size,
-      products: products
+      productos: products
     }
   end
 

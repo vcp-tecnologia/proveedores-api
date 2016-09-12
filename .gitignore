@@ -18,7 +18,9 @@
 *.DS_Store
 
 
-
+node_modules
 scrapers/ingram/node_modules
 scrapers/ingram/dist
 *.log
+app/javascript/category_scraper.js
+app/javascript/product_scraper.js

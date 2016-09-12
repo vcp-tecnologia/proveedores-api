@@ -9,10 +9,9 @@ class IngramProductScraperJob < ApplicationJob
 
     puts "Retrieving data for #{urls.size} products"
 
-    baseDir = "#{Rails.application.config.scrapers_dir}/ingram"
-    phantomjsBin = "#{baseDir}/node_modules/phantomjs/bin/phantomjs"
-    scriptPath = "#{baseDir}/dist/product_scraper.js"
-    tmpFilepath = "#{Rails.application.config.scrapers_tmp_dir}/#{randTempFilename()}"
+    phantomjsBin = "#{Rails.root}/node_modules/phantomjs/bin/phantomjs"
+    scriptPath = "#{Rails.root.join('app', 'javascript')}/product_scraper.js"
+    tmpFilepath = "#{Rails.root.join('tmp')}/#{randTempFilename()}"
 
     File.open(tmpFilepath, 'w') do |file| 
       urls.each { |url| file.puts(url) }
