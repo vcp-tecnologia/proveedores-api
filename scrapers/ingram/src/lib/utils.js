@@ -62,6 +62,16 @@ export const logoff = (phantom: any, page: any, exitCode: number): void => {
 }
 
 export const login = (phantom: any, page: any, callback: any, ...args: Array<any>) => {
+  const env = require('system').env;
+
+  const username = env["INGRAM_LOGIN_USERNAME"];
+  const password = env["INGRAM_LOGIN_PASSWORD"];
+
+  if (!username || !password) {
+    error('INGRAM_LOGIN_USERNAME or INGRAM_LOGIN_PASSWORD environment variables not provided');
+    exit(phantom,   ERROR_EXIT_CODE);
+  }
+
   page.open(LOGIN_URL, function(status){
     const isSuccess = checkPageLoadStatus(phantom, page, status);
 
@@ -75,8 +85,8 @@ export const login = (phantom: any, page: any, callback: any, ...args: Array<any
       usernameSelector: LOGIN_FORM_USERNAME_SELECTOR,
       passwordSelector: LOGIN_FORM_PASSWORD_SELECTOR, 
       submitSelector: LOGIN_FORM_SUBMIT_SELECTOR, 
-      username: USERNAME,
-      password: PASSWORD
+      username: username,
+      password: password
     });
 
     /* Wait and check for successfull login */
