@@ -115,7 +115,8 @@ function productData() {
      document.getElementById('resume-zone').children[0].children[0].children[3].children[0].children[1]
     ){
 
-    var imageUrl = "http://" + document.getElementById('photo-zone').children[0].getAttribute('src').substring(2);
+    var imageElem = document.getElementById('photo-zone').children[1] || document.getElementById('photo-zone').children[0];
+    var imageUrl = "http://" + imageElem.getAttribute('src').substring(2);
     var price = document.getElementsByClassName('price-title')[0].children[1].innerText.trim().split(" ")[1];
     var title = document.getElementById('resume-zone').children[0].children[0].children[0].innerText.trim().replace("\n", "");
     var sku = document.getElementById('resume-zone').children[0].children[0].children[1].children[0].children[0].innerText.trim();
