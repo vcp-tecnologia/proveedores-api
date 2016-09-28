@@ -44,7 +44,8 @@ class IngramProductScraperJob < ApplicationJob
               data: data,
               vendor: "Ingram",
               vendor_id: sku,
-              manufacturer: manufacturer
+              manufacturer: manufacturer,
+              product_info_updated_at: Time.now
             })
           end
         end

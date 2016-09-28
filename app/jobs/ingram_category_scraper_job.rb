@@ -26,28 +26,29 @@ class IngramCategoryScraperJob < ApplicationJob
     output.split("\n").each do |line|
       if line =~ /.* \[APP DATA\] (.*)/
         data = $1
-        
         puts "Parsing data: #{data}"
 
-        url = (data =~ /\"url\":\"([^\"]*)\"/) ? $1 : nil
-        sku = (data =~ /\"sku\":\"([^\"]*)\"/) ? $1 : nil
-        existencias = (data =~ /\"existencias\":\"([^\"]*)\"/) ? $1.to_i : nil
-        precio = (data =~ /\"precio\":\"([^\"]*)\"/) ? $1.to_f : nil
-        
+        jsonData = JSON.parse(data)
+        url = jsonData['url']
+        sku = jsonData['sku']
+        existencias = jsonData['existencias'].tr(',', '').to_i
+        precio = jsonData['precio'].tr('$,', '').to_f        
         
         product = Product.find_by_url(url)
         if product
           puts "Found existing product, updating price: #{precio}, units: #{existencias}"
           product.update_attributes(
             price: precio,
-            units: existencias
+            units: existencias,
+            price_and_units_updated_at: Time.now
           )
         else
           puts "Did not find existing product. Creating one."
           Product.create(
             url: url,
             price: precio,
-            units: existencias
+            units: existencias,
+            price_and_units_updated_at: Time.now
           )
         end
       end
