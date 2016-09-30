@@ -3,7 +3,8 @@ class IngramProductScraperJob < ApplicationJob
 
   def perform(numProductsToScrape = 100, blacklistUrls = [])
     urls = Product.missing_data.pluck(:url).shuffle[0...numProductsToScrape] - blacklistUrls  
-    if (urls.size == 0)
+    if (urls.empty?)
+      puts "No products to scrape. Exiting..."
       return
     end
 
