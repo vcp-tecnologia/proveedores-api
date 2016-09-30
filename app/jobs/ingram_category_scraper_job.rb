@@ -7,6 +7,11 @@ class IngramCategoryScraperJob < ApplicationJob
 
     categoriesToScrape = IngramCategory.pending.limit(numCategoriesToScrape)
 
+    if categoriesToScrape.empty?
+      puts "No categories to scrape. Exiting"
+      return
+    end
+
     puts "Scraping categories: #{categoriesToScrape.pluck(:name)}"
 
     command = "#{phantomjsBin} #{scriptPath} \"#{categoriesToScrape.pluck(:url).join(' ')}\""
